@@ -1,0 +1,141 @@
+versión de Gretl 2025b
+Sesión actual: 2025-06-29 23:50
+
+? open aurora.gdt
+
+Leer fichero de datos C:\Users\Junior_2\OneDrive\Documentos\gretl\aurora.gdt
+periodicidad: 1, máx. obs: 500
+rango de observaciones: 1 a 500
+
+Listando 16 variables:
+  0) const          1) index          2) base_media     3) ingresos     
+  4) deuda          5) nmiembros      6) edad_jefe      7) u            
+  8) educacion      9) consumo       10) formalidad    11) ahorro       
+ 12) tasa_ahorro   13) log_valida    14) log_ing       15) log_con      
+
+# Análisis sobre la base cargada: aurora.gdt
+
+🔍 Análisis de elasticidad y consumo
+# MODELO 1: 
+# ➤ Cambios absolutos: por cada sol adicional de ingreso, el consumo sube en β soles.
+? ols consumo const ingresos deuda nmiembros formalidad
+
+Modelo 1: MCO, usando las observaciones 1-500
+Variable dependiente: consumo
+
+              coeficiente   Desv. típica  Estadístico t  valor p
+  --------------------------------------------------------------
+  const       47.0311       19.7836           2.377      0.0178  **
+  ingresos     0.710777      0.00461004     154.2        0.0000  ***
+  deuda        0.000102119   0.000488284      0.2091     0.8344 
+  nmiembros   −0.175067      2.47362         −0.07077    0.9436 
+  formalidad   1.12592       5.60899          0.2007     0.8410 
+
+Media de la vble. dep.  2054.205   D.T. de la vble. dep.   433.9641
+Suma de cuad. residuos   1902237   D.T. de la regresión    61.99115
+R-cuadrado              0.979758   R-cuadrado corregido    0.979594
+F(4, 495)               5989.734   Valor p (de F)          0.000000
+Log-verosimilitud      −2770.452   Criterio de Akaike      5550.905
+Criterio de Schwarz     5571.978   Crit. de Hannan-Quinn   5559.174
+
+Sin considerar la constante, el valor p más alto fue el de la variable 5 (nmiembros)
+
+# MODELO 2: log(consumo) ~ log(ingresos) + deuda + nmiembros + formalidad
+# ➤ Mide elasticidades: si ingreso sube 1 %, consumo sube β % en promedio.
+# ➤ log_ing y log_con ya están en la base cargada
+? 
+Rango de datos completo: 1 - 500 (n = 500)
+
+? ols log_con const log_ing deuda nmiembros formalidad
+
+Modelo 2: MCO, usando las observaciones 1-500
+Variable dependiente: log_con
+
+              coeficiente   Desv. típica  Estadístico t  valor p
+  --------------------------------------------------------------
+  const       −0.158955     0.0464838        −3.420      0.0007  ***
+  log_ing      0.980076     0.00576207      170.1        0.0000  ***
+  deuda        7.45400e-08  2.32567e-07       0.3205     0.7487 
+  nmiembros   −0.000355928  0.00117673       −0.3025     0.7624 
+  formalidad   0.000529393  0.00267162        0.1982     0.8430 
+
+Media de la vble. dep.  7.603390   D.T. de la vble. dep.   0.227365
+Suma de cuad. residuos  0.431539   D.T. de la regresión    0.029526
+R-cuadrado              0.983271   R-cuadrado corregido    0.983136
+F(4, 495)               7273.566   Valor p (de F)          0.000000
+Log-verosimilitud       1054.282   Criterio de Akaike     −2098.564
+Criterio de Schwarz    −2077.491   Crit. de Hannan-Quinn  −2090.295
+
+Sin considerar la constante, el valor p más alto fue el de la variable 10 (formalidad)
+
+? smpl --full
+Rango de datos completo: 1 - 500 (n = 500)
+
+# MODELO 3: Solo hogares formales
+? if sum(formalidad) > 30
+? 
+Conjunto de datos completo: 500 observaciones
+Muestra actual: 215 observaciones
+
+📂 Modelo 3 – Solo formales:
+? ols consumo const ingresos
+
+Modelo 3: MCO, usando las observaciones 1-215
+Variable dependiente: consumo
+
+             coeficiente   Desv. típica   Estadístico t    valor p 
+  -----------------------------------------------------------------
+  const       58.2623      21.5392            2.705       0.0074    ***
+  ingresos     0.707474     0.00744225       95.06        2.10e-176 ***
+
+Media de la vble. dep.  2063.155   D.T. de la vble. dep.   421.6518
+Suma de cuad. residuos  876135.4   D.T. de la regresión    64.13511
+R-cuadrado              0.976972   R-cuadrado corregido    0.976864
+F(1, 213)               9036.752   Valor p (de F)          2.1e-176
+Log-verosimilitud      −1198.680   Criterio de Akaike      2401.361
+Criterio de Schwarz     2408.102   Crit. de Hannan-Quinn   2404.085
+
+? smpl --full
+Rango de datos completo: 1 - 500 (n = 500)
+
+? endif
+# MODELO 4: Solo hogares informales
+? if ($nobs - sum(formalidad)) > 30
+
+Conjunto de datos completo: 500 observaciones
+Muestra actual: 285 observaciones
+
+📂 Modelo 4 – Solo informales:
+? ols consumo const ingresos
+
+Modelo 4: MCO, usando las observaciones 1-285
+Variable dependiente: consumo
+
+             coeficiente   Desv. típica   Estadístico t    valor p 
+  -----------------------------------------------------------------
+  const       41.1721      16.6844             2.468      0.0142    **
+  ingresos     0.713099     0.00579326       123.1        8.63e-248 ***
+
+Media de la vble. dep.  2047.454   D.T. de la vble. dep.   443.6435
+Suma de cuad. residuos   1024903   D.T. de la regresión    60.17944
+R-cuadrado              0.981664   R-cuadrado corregido    0.981600
+F(1, 283)               15151.42   Valor p (de F)          8.6e-248
+Log-verosimilitud      −1571.133   Criterio de Akaike      3146.266
+Criterio de Schwarz     3153.571   Crit. de Hannan-Quinn   3149.195
+
+? smpl --full
+Rango de datos completo: 1 - 500 (n = 500)
+
+? endif
+# Mostrar tasas de ahorro promedio por educación
+? scalar prom_0 = mean(tasa_ahorro, educacion == 0)
+Se ha generado el escalar prom_0 = 27.1386
+? scalar prom_1 = mean(tasa_ahorro, educacion == 1)
+Se ha generado el escalar prom_1 = 27.1386
+? scalar prom_2 = mean(tasa_ahorro, educacion == 2)
+Se ha generado el escalar prom_2 = 27.1386
+
+🎓 Ahorro promedio por nivel educativo:
+• Primaria:   27.14%
+• Secundaria: 27.14%
+• Superior:   27.14%
